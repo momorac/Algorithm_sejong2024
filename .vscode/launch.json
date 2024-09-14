@@ -2,7 +2,7 @@
     "configurations": [
         
         {
-            "name": "C/C++: gcc.exe 활성 파일 빌드 및 디버그",
+            "name": "C/C++: gcc.exe 활성 파일 빌드",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
