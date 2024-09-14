@@ -25,9 +25,9 @@ NODE *getNode()
     return new;
 }
 
-void add(LinkedList list, int r, char e)
+void add(LinkedList *list, int r, char e)
 {
-    NODE *p = list.head;
+    NODE *p = list->head;
 
     for (int i = 0; i < r; i++)
     {
@@ -36,25 +36,62 @@ void add(LinkedList list, int r, char e)
 
         if (p == NULL)
         {
-            printf("invalid position");
+            printf("invalid position\n");
             return;
         }
-
-        NODE *new = getNode();
-        new->elem = 0;
-        new->next = p;
-        new->prev = p->prev;
-        p->prev->next = new;
-        p->prev = new;
     }
+
+    NODE *new = getNode();
+    new->elem = e;
+    new->next = p;
+    new->prev = p->prev;
+    new->prev->next = new;
+    p->prev = new;
 }
 
-void print(LinkedList list)
+void delete(LinkedList *list, int r)
+{
+    NODE *p = list->head;
+
+    for (int i = 0; i < r; i++)
+    {
+        p = p->next;
+        // p는 삭제할 대상 노드를 가리킴
+
+        if (p == list->tail || p == NULL)
+        {
+            printf("invalid position\n");
+            return;
+        }
+    }
+
+    p->prev->next = p->next;
+    p->next->prev = p->prev;
+    free(p);
+}
+
+char get(LinkedList *list, int r)
+{
+    NODE *p = list->head;
+
+    for (int i = 0; i < r; i++)
+    {
+        p = p->next;
+        if (p == list->tail || p == NULL)
+        {
+            printf("invalid position\n");
+            return 0;
+        }
+    }
+    return p->elem;
+}
+
+void print(LinkedList *list)
 {
     // p는 linkedlist의 헤드 다음 첫 노드부터 시작
-    NODE *p = list.head->next;
+    NODE *p = list->head->next;
 
-    while (p != list.tail)
+    while (p != list->tail)
     {
         printf("%c ", p->elem);
         p = p->next;
@@ -67,9 +104,39 @@ int main()
     // 이중연결리스트 선언 및 초기화 - O(n)
     LinkedList list;
     list.head = getNode();
-    list.head->next = list.tail;
     list.tail = getNode();
+    list.head->next = list.tail;
     list.tail->prev = list.head;
+
+    int n, tmp_int;
+    char command, tmp_char;
+
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++)
+    {
+        getchar();
+        scanf("%c", &command);
+        switch (command)
+        {
+        case 'A':
+            scanf("%d %c", &tmp_int, &tmp_char);
+            add(&list, tmp_int, tmp_char);
+            break;
+
+        case 'D':
+            scanf("%d", &tmp_int);
+            delete (&list, tmp_int);
+            break;
+
+        case 'G':
+            scanf("%d", &tmp_int);
+            printf("%c\n", get(&list, tmp_int));
+            break;
+        case 'P':
+            print(&list);
+        }
+    }
 
     return 0;
 }
