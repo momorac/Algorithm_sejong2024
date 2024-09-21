@@ -17,6 +17,7 @@ int main()
         scanf("%d", p);
     }
 
+    // 선택정렬 알고리즘
     for (int *p = list + n - 1; p >= list; p--)
     {
         int *max = p;
@@ -37,6 +38,8 @@ int main()
     {
         printf(" %d", *p);
     }
+
+    free(list);
 
     return 0;
 }
