@@ -79,7 +79,7 @@ char get(LinkedList *list, int r)
         p = p->next;
         if (p == list->tail || p == NULL)
         {
-            printf("invalid position\n");
+            printf("invalid position");
             return 0;
         }
     }
@@ -93,7 +93,7 @@ void print(LinkedList *list)
 
     while (p != list->tail)
     {
-        printf("%c ", p->elem);
+        printf("%c", p->elem);
         p = p->next;
     }
     printf("\n");
@@ -138,35 +138,6 @@ int main()
         }
     }
 
-    int n, tmp_int;
-    char command, tmp_char;
-
-    scanf("%d", &n);
-
-    for (int i = 0; i < n; i++)
-    {
-        getchar();
-        scanf("%c", &command);
-        switch (command)
-        {
-        case 'A':
-            scanf("%d %c", &tmp_int, &tmp_char);
-            add(&list, tmp_int, tmp_char);
-            break;
-
-        case 'D':
-            scanf("%d", &tmp_int);
-            delete (&list, tmp_int);
-            break;
-
-        case 'G':
-            scanf("%d", &tmp_int);
-            printf("%c\n", get(&list, tmp_int));
-            break;
-        case 'P':
-            print(&list);
-        }
-    }
 
     // 동적할당 해제
     NODE *p = list.head;
