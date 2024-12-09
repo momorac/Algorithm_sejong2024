@@ -4,21 +4,22 @@
 
 struct Node
 {
-    int elem;
+    int name;
     struct Node *next;
 } typedef NODE;
 
 struct Leaf
 {
-    int elem;
+    int name;
     struct Leaf *left;
     struct Leaf *right;
 } typedef LEAF;
 
 struct Heap
 {
-    LEAF root;
+    LEAF *root;
     LEAF *last;
+    int size;
 } typedef HEAP;
 
 NODE *getNode()
@@ -28,9 +29,10 @@ NODE *getNode()
     return new;
 }
 
-LEAF *setLeaf()
+LEAF *setLeaf(int name)
 {
     LEAF *new = (LEAF *)malloc(sizeof(LEAF));
+    new->name = name;
     new->left = NULL;
     new->right = NULL;
     return new;
@@ -39,13 +41,13 @@ LEAF *setLeaf()
 NODE *buildList(int n, int min, int max)
 {
     NODE *L = getNode();
-    L->elem = rand() % (max - min) + min;
+    L->name = rand() % (max - min + 1) + min;
 
     NODE *p = L;
     for (int i = 1; i < n; i++)
     {
         NODE *new = getNode();
-        new->elem = rand() % max + min;
+        new->name = rand() % (max - min + 1) + min;
         p->next = new;
         p = new;
     }
@@ -58,57 +60,104 @@ void printList(NODE *L)
     NODE *p = L;
     while (p != NULL)
     {
-        printf("%d ", p->elem);
+        printf("%d ", p->name);
         p = p->next;
     }
+    printf("\n");
 }
 
-void findKthSmallest(NODE *L, int n, int k)
+// 힙의 최대 노드를 루트로 유지 (Max-Heap)
+void heapify(LEAF *node)
 {
-    // 리스트를 새로운 힙에 저장
-    HEAP heap;
-    heap.root.left = NULL;
-    heap.root.right = NULL;
-    heap.last = &(heap.root);
-}
+    if (node == NULL)
+        return;
 
-HEAP *buildHeap(HEAP *H, NODE *L)
-{
-    NODE *p = L;
+    LEAF *largest = node;
+    if (node->left && node->left->name > largest->name)
+        largest = node->left;
+    if (node->right && node->right->name > largest->name)
+        largest = node->right;
 
-    while (p != NULL)
+    if (largest != node)
     {
-        H->last->elem = p->elem;
+        int temp = node->name;
+        node->name = largest->name;
+        largest->name = temp;
+        heapify(largest);
     }
 }
 
-int isExternal(LEAF *node)
+HEAP *buildHeapFromList(NODE *L)
 {
-    if (node->left == NULL && node->right == NULL)
-        return 1;
-    return 0;
+    HEAP *heap = (HEAP *)malloc(sizeof(HEAP));
+    heap->root = setLeaf(L->name); // 첫 노드를 힙 루트로 설정
+    heap->last = heap->root;
+    heap->size = 1;
+
+    NODE *p = L->next;
+    while (p != NULL)
+    {
+        LEAF *newLeaf = setLeaf(p->name);
+
+        // 힙에 새로운 리프를 추가 (완전이진트리 유지)
+        if (heap->size % 2 == 0)
+            heap->last->left = newLeaf;
+        else
+            heap->last->right = newLeaf;
+
+        heap->last = newLeaf;
+        heap->size++;
+
+        // 힙 성질을 유지
+        heapify(heap->root);
+        p = p->next;
+    }
+
+    return heap;
 }
 
-void downHeap(LEAF *node)
+// 힙에서 k번째 작은 원소를 찾음 (최대 힙 사용)
+int findKthSmallest(NODE *L, int n, int k)
 {
-    // 외부 노드이면 
-    if ()
-        return;
+    HEAP *heap = buildHeapFromList(L);
 
+    // 힙에서 k번째 작은 원소를 찾기 위해 루트에서부터 삭제하며 찾아감
+    for (int i = 0; i < k - 1; i++)
+    {
+        // 루트에 가장 큰 값이 있으므로, 루트를 삭제하고 힙 성질 유지
+        if (heap->root == NULL)
+            return -1;
+
+        LEAF *lastLeaf = heap->last;
+        heap->root->name = lastLeaf->name;
+
+        // 힙 크기를 줄이고 마지막 노드 갱신
+        if (heap->size % 2 == 0)
+            heap->last = heap->last->left;
+        else
+            heap->last = heap->last->right;
+
+        heap->size--;
+        heapify(heap->root);
+    }
+
+    return heap->root->name; // 루트는 k번째 작은 원소
 }
 
-/*
-    중복이 있을 수 있는 n개의 정수 원소들로 이루어진 리스트 L의 원소 가운데 k-번째로 작은 원소를 찾아라
-*/
 int main()
 {
     srand(time(NULL));
+
+    // 리스트 L 생성
     NODE *L = buildList(10, 1, 100);
     printList(L);
 
+    // k = 1, 2, 3에 대해 k번째 작은 원소를 찾고 출력
     for (int k = 1; k <= 3; k++)
     {
+        int kthSmallest = findKthSmallest(L, 10, k);
+        printf("%d번째 작은 원소: %d\n", k, kthSmallest);
     }
 
-    int n;
+    return 0;
 }
